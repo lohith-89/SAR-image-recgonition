@@ -6,3 +6,4 @@ Flask
 Pillow
 gdown
 gunicorn
+flask_cors==4.0.0
