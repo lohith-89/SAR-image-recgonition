@@ -1,3 +1,8 @@
 gradio
+gunicorn
 tensorflow
 numpy
+Flask
+Pillow
+gdown
+gunicorn
