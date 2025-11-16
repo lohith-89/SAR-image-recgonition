@@ -1,6 +1,8 @@
 import base64
 import numpy as np
 import io
+import gdown
+import os
 from PIL import Image
 import tensorflow as tf
 from flask import request, jsonify, Flask, render_template, session
@@ -8,25 +10,38 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-app.secret_key = 'your_secret_key_here'  # Change this to a secure key in production
+app.secret_key = "your_secret_key_here"
 
-# -----------------------------
-# Load Model
-# -----------------------------
-model = tf.keras.models.load_model("downstream_model_weights.h5")
+# -------------------------------------------------
+# DOWNLOAD MODEL WEIGHTS FROM GOOGLE DRIVE IF MISSING
+# -------------------------------------------------
+weights_path = "downstream_model_weights.h5"
+drive_url = "https://drive.google.com/uc?export=download&id=1kxcFY-roQFFr3nw_uaEf2siW_XE3xWC4"
 
-# -----------------------------
-# Class Labels
-# -----------------------------
+if not os.path.exists(weights_path):
+    print("\n🔽 Downloading model weights from Google Drive...")
+    gdown.download(drive_url, weights_path, quiet=False, fuzzy=True)
+    print("✅ Download complete!\n")
+else:
+    print("✓ Model weights already exist. Skipping download.")
+
+# -------------------------------------------------
+# LOAD MODEL
+# -------------------------------------------------
+model = tf.keras.models.load_model(weights_path)
+
+# -------------------------------------------------
+# CLASS LABELS
+# -------------------------------------------------
 class_labels = {
     0: '2S1', 1: 'BMP2', 2: 'BRDM2', 3: 'BTR60',
     4: 'BTR70', 5: 'D7', 6: 'SLICY', 7: 'T62',
     8: 'T72', 9: 'ZIL132', 10: 'ZSU_23_4'
 }
 
-# -----------------------------
-# Vehicle Details Dictionary
-# -----------------------------
+# -------------------------------------------------
+# VEHICLE DETAILS
+# -------------------------------------------------
 vehicle_details = {
     '2S1': {
         'description': 'The 2S1 Gvozdika is a Soviet self-propelled artillery vehicle with a 122mm howitzer.',
@@ -74,48 +89,33 @@ vehicle_details = {
     }
 }
 
-# -----------------------------
-# Home Route
-# -----------------------------
+# -------------------------------------------------
+# ROUTES
+# -------------------------------------------------
 @app.route("/")
 def home():
     return render_template("home.html")
 
-# -----------------------------
-# Predict Route (Page)
-# -----------------------------
 @app.route("/predict")
 def predict_page():
     return render_template("predict.html")
 
-# -----------------------------
-# About Route
-# -----------------------------
 @app.route("/about")
 def about():
     return render_template("about.html")
 
-# -----------------------------
-# Gallery Route
-# -----------------------------
 @app.route("/gallery")
 def gallery():
     return render_template("gallery.html", vehicle_details=vehicle_details)
 
-# -----------------------------
-# History Route
-# -----------------------------
 @app.route("/history")
 def history():
-    history_list = session.get('prediction_history', [])
+    history_list = session.get("prediction_history", [])
     return render_template("history.html", history=history_list)
 
-# -----------------------------
-# Prediction API Route
-# -----------------------------
-# -----------------------------
-# Prediction API Route (FIXED)
-# -----------------------------
+# -------------------------------------------------
+# PREDICTION API
+# -------------------------------------------------
 @app.route("/api/predict", methods=["POST"])
 def predict_api():
     try:
@@ -136,7 +136,7 @@ def predict_api():
         label = class_labels[predicted_index]
         details = vehicle_details[label]
 
-        # Base64 encoding
+        # Encode uploaded image
         buffered = io.BytesIO()
         img.save(buffered, format="JPEG")
         encoded_uploaded = base64.b64encode(buffered.getvalue()).decode("utf-8")
@@ -151,8 +151,8 @@ def predict_api():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# -----------------------------
-# Run App
-# -----------------------------
+# -------------------------------------------------
+# RUN FLASK
+# -------------------------------------------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=True)
