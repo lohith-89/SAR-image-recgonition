@@ -16,8 +16,9 @@ app.secret_key = "your_secret_key_here"
 # DOWNLOAD MODEL WEIGHTS FROM GOOGLE DRIVE IF MISSING
 # -------------------------------------------------
 weights_path = "downstream_model_weights.h5"
-drive_id = "1kxcFY‑roQFFr3nw_uaEf2siW_XE3xWC4"
+drive_id = "1kxcFY-roQFFr3nw_uaEf2siW_XE3xWC4"  # Normal dash
 drive_url = f"https://drive.google.com/uc?id={drive_id}"
+
 
 
 if not os.path.exists(weights_path):
