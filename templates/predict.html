@@ -1,6 +1,20 @@
 {% extends "base.html" %}
 {% block title %}Predict - ATR App{% endblock %}
 {% block content %}
+<style>
+    /* Dark background, light text for visibility */
+    body { background-color: #121212 !important; color: #f1f1f1 !important; }  /* Dark background, light text */
+    .card { background-color: #1e1e1e !important; color: #f1f1f1 !important; }  /* Dark card background */
+    #status, #predLabel, #predDesc { color: #f1f1f1 !important; }  /* Prediction text in light color */
+    .text-muted { color: #b0b0b0 !important; }  /* Muted text lighter gray */
+    .alert { color: #ff6b6b !important; }  /* Light red for error alerts */
+    .btn { color: #ffffff !important; background-color: #3a3a3a !important; border: 1px solid #555555 !important; }  /* Buttons with dark background */
+    /* Additional overrides for specific elements */
+    #resultCard { background-color: #1e1e1e !important; border: 1px solid #333333 !important; }
+    h2, h4 { color: #f1f1f1 !important; }  /* Headings in light color */
+</style>
+
+
 <div class="container">
     <h2 class="text-center">Upload & Predict SAR Image</h2>
     <div class="row">
@@ -42,7 +56,9 @@
         </div>
     </div>
 </div>
+
 <script>
+    // ... (Your existing JavaScript remains unchanged)
     const fileInput = document.getElementById('fileInput');
     const uploadForm = document.getElementById('uploadForm');
     const previewImg = document.getElementById('previewImg');
@@ -134,7 +150,6 @@
             fd.append('file', fileInput.files[0]);
             console.log('Sending prediction request');
             const resp = await fetch('/api/predict', {
-
                 method: 'POST',
                 body: fd
             });
